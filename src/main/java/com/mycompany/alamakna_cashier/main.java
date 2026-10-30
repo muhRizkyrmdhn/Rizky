@@ -12,8 +12,8 @@ public class main {
     public static void main(String[] args) {
         javax.swing.SwingUtilities.invokeLater(() -> {
             loginForm form = new loginForm();
-            form.setLocationRelativeTo(null); // Menampilkan form persis di tengah layar
-            form.setVisible(true);            // Menampilkan window loginForm
+            form.setLocationRelativeTo(null);
+            form.setVisible(true);
         });
     }
 }
