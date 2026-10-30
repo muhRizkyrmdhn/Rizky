@@ -10,17 +10,10 @@ package com.mycompany.alamakna_cashier;
  */
 public class main {
     public static void main(String[] args) {
-            javax.swing.SwingUtilities.invokeLater(() -> {
-                javax.swing.JFrame frame = new javax.swing.JFrame("Login");
-
-                frame.setDefaultCloseOperation(
-                    javax.swing.JFrame.EXIT_ON_CLOSE
-                );
-
-                frame.setContentPane(new loginForm());
-                frame.pack();
-                frame.setLocationRelativeTo(null);
-                frame.setVisible(true);
-            });
-        }
+        javax.swing.SwingUtilities.invokeLater(() -> {
+            loginForm form = new loginForm();
+            form.setLocationRelativeTo(null); // Menampilkan form persis di tengah layar
+            form.setVisible(true);            // Menampilkan window loginForm
+        });
+    }
 }

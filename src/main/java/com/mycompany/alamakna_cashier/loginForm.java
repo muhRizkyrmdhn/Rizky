@@ -4,6 +4,8 @@
  */
 package com.mycompany.alamakna_cashier;
 
+import java.sql.ResultSet;
+
 /**
  *
  * @author MUHAMMAD RIZKY R
@@ -110,7 +112,7 @@ try (
         java.sql.DriverManager.getConnection(url, "root", "");
 
     java.sql.PreparedStatement ps = conn.prepareStatement(
-        "SELECT * FROM pengguna WHERE username = ? AND password = ?"
+        "SELECT * FROM login WHERE username = ? AND password = ?"
     )
 ) 
 {
