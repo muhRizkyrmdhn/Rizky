@@ -1,19 +1,29 @@
 package com.mycompany.alamakna_cashier;
 
-// Inheritance
+import jakarta.persistence.*;
+
+@Entity
+@Table(name = "custom_blends")
 public class CustomBlend extends Product {
+
+    @Column(name = "rasio_arabika", nullable = false)
     private int rasioArabika;
+
+    @Column(name = "rasio_robusta", nullable = false)
     private int rasioRobusta;
+
+    @Column(name = "grind_size", nullable = false)
     private String grindSize;
 
-    public CustomBlend(int id, String namaProduk, double hargaPerGram, int stokGram, int rasioArabika, int rasioRobusta, String grindSize) {
-        super(id, namaProduk, hargaPerGram, stokGram);
+    public CustomBlend() {}
+
+    public CustomBlend(String namaProduk, double hargaPerGram, int stokGram, int rasioArabika, int rasioRobusta, String grindSize) {
+        super(namaProduk, hargaPerGram, stokGram);
         this.rasioArabika = rasioArabika;
         this.rasioRobusta = rasioRobusta;
         this.grindSize = grindSize;
     }
 
-    // Polymorphism
     @Override
     public double hitungSubtotal(int jumlahGram) {
         double biayaRacik = 5000;
@@ -21,6 +31,9 @@ public class CustomBlend extends Product {
     }
 
     public int getRasioArabika() { return rasioArabika; }
+    public void setRasioArabika(int rasioArabika) { this.rasioArabika = rasioArabika; }
     public int getRasioRobusta() { return rasioRobusta; }
+    public void setRasioRobusta(int rasioRobusta) { this.rasioRobusta = rasioRobusta; }
     public String getGrindSize() { return grindSize; }
+    public void setGrindSize(String grindSize) { this.grindSize = grindSize; }
 }

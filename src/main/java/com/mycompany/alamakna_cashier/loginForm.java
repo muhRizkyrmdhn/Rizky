@@ -5,7 +5,8 @@
 package com.mycompany.alamakna_cashier;
 
 import java.sql.ResultSet;
-
+import org.hibernate.Session;
+import org.hibernate.query.Query;
 /**
  *
  * @author MUHAMMAD RIZKY R
@@ -156,48 +157,55 @@ public class loginForm extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void loginActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_loginActionPerformed
-String username = txtUsername.getText().trim();
-String password = txtPassword.getText().trim();
+        String username = txtUsername.getText().trim();
+        String password = txtPassword.getText().trim();
 
-if (username.isEmpty() || password.isEmpty()) {
-    javax.swing.JOptionPane.showMessageDialog(
-        this, "Username dan password wajib diisi!"
-    );
-    return;
-}
-
-String url = "jdbc:mysql://localhost:3306/alamakna";
-
-try (
-    java.sql.Connection conn =
-        java.sql.DriverManager.getConnection(url, "root", "");
-
-    java.sql.PreparedStatement ps = conn.prepareStatement(
-        "SELECT * FROM login WHERE username = ? AND password = ?"
-    )
-) 
-{
-    ps.setString(1, username);
-    ps.setString(2, password);
-
-    try (ResultSet rs = ps.executeQuery()) {
-        if (rs.next()) {
+        if (username.isEmpty() || password.isEmpty()) {
             javax.swing.JOptionPane.showMessageDialog(
-                this, "Login berhasil! Selamat datang, " + username
+                this, "Username dan password wajib diisi!", "Peringatan", javax.swing.JOptionPane.WARNING_MESSAGE
             );
-        } else {
+            return;
+        }
+
+        // Menggunakan HIBERNATE ORM HQL untuk Autentikasi
+        try (org.hibernate.Session session = HibernateUtil.getSessionFactory().openSession()) {
+
+            String hql = "FROM Admin WHERE username = :user AND password = :pass";
+            org.hibernate.query.Query<Admin> query = session.createQuery(hql, Admin.class);
+            query.setParameter("user", username);
+            query.setParameter("pass", password);
+
+            Admin admin = query.uniqueResult();
+
+            if (admin != null) {
+                javax.swing.JOptionPane.showMessageDialog(
+                    this, "Login Berhasil! Selamat datang, " + admin.getUsername(), 
+                    "Sukses", javax.swing.JOptionPane.INFORMATION_MESSAGE
+                );
+
+                // 1. Tutup Form Login
+                this.dispose();
+
+                // 2. Buka MainFrame GUI Kasir Utama
+                java.awt.EventQueue.invokeLater(() -> new MainFrame().setVisible(true));
+
+            } else {
+                javax.swing.JOptionPane.showMessageDialog(
+                    this, "Username atau password salah!", 
+                    "Login Gagal", javax.swing.JOptionPane.ERROR_MESSAGE
+                );
+            }
+
+        } catch (Exception e) {
             javax.swing.JOptionPane.showMessageDialog(
-                this, "Username atau password salah!"
+                this, "Koneksi Hibernate Database Gagal: " + e.getMessage(),
+                "Error Database", javax.swing.JOptionPane.ERROR_MESSAGE
             );
         }
     }
-
-} catch (java.sql.SQLException e) {
-    javax.swing.JOptionPane.showMessageDialog(
-        this, "Koneksi database gagal: " + e.getMessage()
-    );
-}
     }//GEN-LAST:event_loginActionPerformed
+    // TODO add your handling code here:
+
 
     private void txtPasswordActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtPasswordActionPerformed
         // TODO add your handling code here:
