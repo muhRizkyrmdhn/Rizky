@@ -26,7 +26,14 @@ public class MainFrame extends javax.swing.JFrame {
      * Creates new form MainFrame
      */
     public MainFrame() {
-        initComponents();
+        initComponents(); // Method bawaan NetBeans
+    
+        // Setel ukuran jendela GUI agar langsung terlihat di layar
+        this.setTitle("ALAMAKNA - Self Cashier & Coffee Blend Simulator");
+        this.setSize(600, 500);
+        this.setLocationRelativeTo(null); // Posisikan di tengah layar
+
+        // Inisialisasi komponen racikan kopi & Hibernate
         initComponentsCustom();
         simulator = new BlendSimulator();
         updateKalkulasiRasa();
@@ -108,8 +115,9 @@ public class MainFrame extends javax.swing.JFrame {
                 tx.commit();
 
                 JOptionPane.showMessageDialog(this,
-                        "Pesanan Berhasil Disimpan ke Database via Hibernate ORM!\n" +
-                        "ID Pesanan DB: " + pesanan.getId() + "\n" +
+                        """
+                        Pesanan Berhasil Disimpan ke Database via Hibernate ORM!
+                        ID Pesanan DB: """ + pesanan.getId() + "\n" +
                         "Total Bayar: Rp " + pesanan.hitungSubtotal(gram),
                         "Hibernate ORM Success",
                         JOptionPane.INFORMATION_MESSAGE);

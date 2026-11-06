@@ -4,7 +4,8 @@
  */
 package com.mycompany.alamakna_cashier;
 
-import java.sql.ResultSet;
+import java.util.logging.Level;
+import javax.swing.JOptionPane;
 import org.hibernate.Session;
 import org.hibernate.query.Query;
 /**
@@ -162,12 +163,12 @@ public class loginForm extends javax.swing.JFrame {
 
         if (username.isEmpty() || password.isEmpty()) {
             javax.swing.JOptionPane.showMessageDialog(
-                this, "Username dan password wajib diisi!", "Peringatan", javax.swing.JOptionPane.WARNING_MESSAGE
+                this, "Username dan password wajib diisi!", 
+                "Peringatan", javax.swing.JOptionPane.WARNING_MESSAGE
             );
             return;
         }
 
-        // Menggunakan HIBERNATE ORM HQL untuk Autentikasi
         try (org.hibernate.Session session = HibernateUtil.getSessionFactory().openSession()) {
 
             String hql = "FROM Admin WHERE username = :user AND password = :pass";
@@ -183,10 +184,7 @@ public class loginForm extends javax.swing.JFrame {
                     "Sukses", javax.swing.JOptionPane.INFORMATION_MESSAGE
                 );
 
-                // 1. Tutup Form Login
                 this.dispose();
-
-                // 2. Buka MainFrame GUI Kasir Utama
                 java.awt.EventQueue.invokeLater(() -> new MainFrame().setVisible(true));
 
             } else {
@@ -197,13 +195,14 @@ public class loginForm extends javax.swing.JFrame {
             }
 
         } catch (Exception e) {
-            javax.swing.JOptionPane.showMessageDialog(
-                this, "Koneksi Hibernate Database Gagal: " + e.getMessage(),
-                "Error Database", javax.swing.JOptionPane.ERROR_MESSAGE
+                // Ini akan memunculkan dialog jika koneksi ke DB/Hibernate bermasalah
+                        javax.swing.JOptionPane.showMessageDialog(
+                this, "Error Hibernate: " + e.getMessage(), 
+                "Database Error", javax.swing.JOptionPane.ERROR_MESSAGE
             );
         }
-    }
     }//GEN-LAST:event_loginActionPerformed
+    // TODO add your handling code here:
     // TODO add your handling code here:
 
 
@@ -220,10 +219,6 @@ public class loginForm extends javax.swing.JFrame {
      */
     public static void main(String args[]) {
         /* Set the Nimbus look and feel */
-        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-         */
         try {
             for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
                 if ("Nimbus".equals(info.getName())) {
@@ -232,9 +227,8 @@ public class loginForm extends javax.swing.JFrame {
                 }
             }
         } catch (ReflectiveOperationException | javax.swing.UnsupportedLookAndFeelException ex) {
-            logger.log(java.util.logging.Level.SEVERE, null, ex);
+            logger.log(Level.SEVERE, null, ex);
         }
-        //</editor-fold>
 
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(() -> new loginForm().setVisible(true));

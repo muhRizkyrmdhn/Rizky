@@ -1,5 +1,6 @@
 package com.mycompany.alamakna_cashier;
 
+import org.hibernate.HibernateException;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 
@@ -8,8 +9,8 @@ public class HibernateUtil {
 
     static {
         try {
-            sessionFactory = new Configuration().configure("hibernate.cfg.xml").buildSessionFactory();
-        } catch (Throwable ex) {
+            sessionFactory = new Configuration().configure("/hibernate.cfg.xml").buildSessionFactory();
+        } catch (HibernateException ex) {
             System.err.println("Gagal membuat SessionFactory Hibernate: " + ex);
             throw new ExceptionInInitializerError(ex);
         }
