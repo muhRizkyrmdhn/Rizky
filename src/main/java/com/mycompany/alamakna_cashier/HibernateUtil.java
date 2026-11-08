@@ -9,7 +9,13 @@ public class HibernateUtil {
 
     static {
         try {
-            sessionFactory = new Configuration().configure("/hibernate.cfg.xml").buildSessionFactory();
+            Configuration config = new Configuration();
+            config.configure("hibernate.cfg.xml");
+            
+            // Registrasi class Admin secara eksplisit ke Hibernate 6
+            config.addAnnotatedClass(Admin.class);
+            
+            sessionFactory = config.buildSessionFactory();
         } catch (HibernateException ex) {
             System.err.println("Gagal membuat SessionFactory Hibernate: " + ex);
             throw new ExceptionInInitializerError(ex);

@@ -5,6 +5,7 @@
 package com.mycompany.alamakna_cashier;
 
 import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 import org.hibernate.Session;
 import org.hibernate.query.Query;
@@ -42,6 +43,7 @@ public class loginForm extends javax.swing.JFrame {
         jLabel1 = new javax.swing.JLabel();
         jLabel4 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
+        daftar = new javax.swing.JButton();
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
@@ -57,6 +59,9 @@ public class loginForm extends javax.swing.JFrame {
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setBackground(new java.awt.Color(58, 48, 38));
 
+        login.setBackground(new java.awt.Color(58, 48, 38));
+        login.setFont(new java.awt.Font("Segoe UI Black", 1, 14)); // NOI18N
+        login.setForeground(new java.awt.Color(255, 255, 255));
         login.setText("LOGIN");
         login.addActionListener(this::loginActionPerformed);
 
@@ -111,7 +116,13 @@ public class loginForm extends javax.swing.JFrame {
         );
 
         jLabel2.setFont(new java.awt.Font("Segoe UI Emoji", 1, 24)); // NOI18N
-        jLabel2.setText("username");
+        jLabel2.setText("Username");
+
+        daftar.setBackground(new java.awt.Color(58, 48, 38));
+        daftar.setFont(new java.awt.Font("Segoe UI Black", 1, 14)); // NOI18N
+        daftar.setForeground(new java.awt.Color(255, 255, 255));
+        daftar.setText("BUAT AKUN");
+        daftar.addActionListener(this::daftarActionPerformed);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -132,8 +143,10 @@ public class loginForm extends javax.swing.JFrame {
                                 .addComponent(txtPassword, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 278, Short.MAX_VALUE)
                                 .addComponent(txtUsername, javax.swing.GroupLayout.Alignment.LEADING))))
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(150, 150, 150)
-                        .addComponent(login, javax.swing.GroupLayout.PREFERRED_SIZE, 112, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addGap(81, 81, 81)
+                        .addComponent(login, javax.swing.GroupLayout.PREFERRED_SIZE, 118, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(daftar)))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
@@ -149,7 +162,9 @@ public class loginForm extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(txtPassword, javax.swing.GroupLayout.PREFERRED_SIZE, 41, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
-                .addComponent(login, javax.swing.GroupLayout.PREFERRED_SIZE, 39, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(login, javax.swing.GroupLayout.PREFERRED_SIZE, 39, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(daftar, javax.swing.GroupLayout.PREFERRED_SIZE, 39, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(65, 65, 65))
             .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, 370, Short.MAX_VALUE)
         );
@@ -162,45 +177,57 @@ public class loginForm extends javax.swing.JFrame {
         String password = txtPassword.getText().trim();
 
         if (username.isEmpty() || password.isEmpty()) {
-            javax.swing.JOptionPane.showMessageDialog(
-                this, "Username dan password wajib diisi!", 
-                "Peringatan", javax.swing.JOptionPane.WARNING_MESSAGE
-            );
+            javax.swing.JOptionPane.showMessageDialog(this, "Username dan password wajib diisi!", "Peringatan", javax.swing.JOptionPane.WARNING_MESSAGE);
             return;
         }
 
-        try (org.hibernate.Session session = HibernateUtil.getSessionFactory().openSession()) {
+        // Jalankan di Thread terpisah agar GUI tidak stuck / freeze
+        new Thread(() -> {
+            try (org.hibernate.Session session = HibernateUtil.getSessionFactory().openSession()) {
 
-            String hql = "FROM Admin WHERE username = :user AND password = :pass";
-            org.hibernate.query.Query<Admin> query = session.createQuery(hql, Admin.class);
-            query.setParameter("user", username);
-            query.setParameter("pass", password);
+                // HQL mengacu ke nama Class Entity 'Admin', bukan nama tabel database
+                String hql = "FROM Admin WHERE username = :user AND password = :pass";
+                org.hibernate.query.Query<Admin> query = session.createQuery(hql, Admin.class);
+                query.setParameter("user", username);
+                query.setParameter("pass", password);
 
-            Admin admin = query.uniqueResult();
+                // Gunakan list() agar aman dan tidak memicu Exception jika data ganda/kosong
+                java.util.List<Admin> hasil = query.list();
 
-            if (admin != null) {
-                javax.swing.JOptionPane.showMessageDialog(
-                    this, "Login Berhasil! Selamat datang, " + admin.getUsername(), 
-                    "Sukses", javax.swing.JOptionPane.INFORMATION_MESSAGE
-                );
-
-                this.dispose();
-                java.awt.EventQueue.invokeLater(() -> new MainFrame().setVisible(true));
-
-            } else {
-                javax.swing.JOptionPane.showMessageDialog(
-                    this, "Username atau password salah!", 
-                    "Login Gagal", javax.swing.JOptionPane.ERROR_MESSAGE
-                );
-            }
-
-        } catch (Exception e) {
-                // Ini akan memunculkan dialog jika koneksi ke DB/Hibernate bermasalah
+                java.awt.EventQueue.invokeLater(() -> {
+                    if (!hasil.isEmpty()) {
+                        Admin admin = hasil.get(0);
                         javax.swing.JOptionPane.showMessageDialog(
-                this, "Error Hibernate: " + e.getMessage(), 
-                "Database Error", javax.swing.JOptionPane.ERROR_MESSAGE
-            );
-        }
+                            loginForm.this, 
+                            "Selamat datang " + admin.getUsername() + " di sistem self-cashier ALAMAKNA!", 
+                            "Login Sukses", 
+                            javax.swing.JOptionPane.INFORMATION_MESSAGE
+                        );
+
+                        loginForm.this.dispose();
+                        new MainFrame().setVisible(true);
+                    } else {
+                        javax.swing.JOptionPane.showMessageDialog(
+                            loginForm.this, 
+                            "Username atau password salah!", 
+                            "Login Gagal", 
+                            javax.swing.JOptionPane.ERROR_MESSAGE
+                        );
+                    }
+                });
+
+            } catch (Throwable e) {
+                e.printStackTrace();
+                java.awt.EventQueue.invokeLater(() -> {
+                    javax.swing.JOptionPane.showMessageDialog(
+                        loginForm.this, 
+                        "Koneksi Hibernate Database Gagal:\n" + e.getMessage(), 
+                        "Error Database", 
+                        javax.swing.JOptionPane.ERROR_MESSAGE
+                    );
+                });
+            }
+        }).start();
     }//GEN-LAST:event_loginActionPerformed
     // TODO add your handling code here:
     // TODO add your handling code here:
@@ -213,6 +240,14 @@ public class loginForm extends javax.swing.JFrame {
     private void txtUsernameActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtUsernameActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_txtUsernameActionPerformed
+
+    private void daftarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_daftarActionPerformed
+        // 1. Sembunyikan/Tutup LoginForm
+        this.dispose();
+
+        // 2. Buka RegisterForm baru
+        java.awt.EventQueue.invokeLater(() -> new RegisterForm().setVisible(true));
+    }//GEN-LAST:event_daftarActionPerformed
 
     /**
      * @param args the command line arguments
@@ -235,6 +270,7 @@ public class loginForm extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton daftar;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
