@@ -173,7 +173,7 @@ public class RegisterForm extends javax.swing.JFrame {
     
     private void signinActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_signinActionPerformed
         if (isProcessing) {
-            return;
+        return;
         }
 
         String username = txtUsername.getText().trim();
@@ -188,19 +188,12 @@ public class RegisterForm extends javax.swing.JFrame {
         signin.setEnabled(false);
 
         new Thread(() -> {
-            org.hibernate.Session session = null;
-            org.hibernate.Transaction tx = null;
-
             try {
-                // 1. Buka Session Hibernate
-                session = HibernateUtil.getSessionFactory().openSession();
+                // Ambil bean AdminDao dari Spring Context
+                AdminDao adminDao = main.springContext.getBean(AdminDao.class);
 
-                // 2. Cek ketersediaan username
-                String hqlCek = "FROM Admin WHERE username = :user";
-                org.hibernate.query.Query<Admin> queryCek = session.createQuery(hqlCek, Admin.class);
-                queryCek.setParameter("user", username);
-
-                if (!queryCek.list().isEmpty()) {
+                // 1. Cek username via Spring DAO
+                if (adminDao.existsByUsername(username)) {
                     java.awt.EventQueue.invokeLater(() -> {
                         javax.swing.JOptionPane.showMessageDialog(
                             RegisterForm.this, 
@@ -214,17 +207,13 @@ public class RegisterForm extends javax.swing.JFrame {
                     return;
                 }
 
-                // 3. Transaksi Insert Data via Hibernate ORM
-                tx = session.beginTransaction();
-
+                // 2. Simpan akun baru via Spring DAO (Otomatis Commit Transaksi)
                 Admin adminBaru = new Admin();
                 adminBaru.setUsername(username);
                 adminBaru.setPassword(password);
+                adminDao.save(adminBaru);
 
-                session.persist(adminBaru);
-                tx.commit(); // Data ter-save ke database MySQL
-
-                // 4. Tampilkan MessageDialog Sukses & Kembali ke loginForm
+                // 3. Tampilkan dialog sukses & kembali ke loginForm
                 java.awt.EventQueue.invokeLater(() -> {
                     javax.swing.JOptionPane.showMessageDialog(
                         RegisterForm.this, 
@@ -238,16 +227,7 @@ public class RegisterForm extends javax.swing.JFrame {
                 });
 
             } catch (Throwable e) {
-                // Rollback hanya jika transaksi masih aktif dan session belum tertutup
-                if (tx != null && tx.isActive()) {
-                    try {
-                        tx.rollback();
-                    } catch (Exception rbEx) {
-                        rbEx.printStackTrace();
-                    }
-                }
                 e.printStackTrace();
-
                 java.awt.EventQueue.invokeLater(() -> {
                     signin.setEnabled(true);
                     isProcessing = false;
@@ -258,11 +238,6 @@ public class RegisterForm extends javax.swing.JFrame {
                         javax.swing.JOptionPane.ERROR_MESSAGE
                     );
                 });
-            } finally {
-                // Pastikan session ditutup paling akhir di blok finally
-                if (session != null && session.isOpen()) {
-                    session.close();
-                }
             }
         }).start();
     }//GEN-LAST:event_signinActionPerformed

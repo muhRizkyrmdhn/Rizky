@@ -181,22 +181,14 @@ public class loginForm extends javax.swing.JFrame {
             return;
         }
 
-        // Jalankan di Thread terpisah agar GUI tidak stuck / freeze
         new Thread(() -> {
-            try (org.hibernate.Session session = HibernateUtil.getSessionFactory().openSession()) {
-
-                // HQL mengacu ke nama Class Entity 'Admin', bukan nama tabel database
-                String hql = "FROM Admin WHERE username = :user AND password = :pass";
-                org.hibernate.query.Query<Admin> query = session.createQuery(hql, Admin.class);
-                query.setParameter("user", username);
-                query.setParameter("pass", password);
-
-                // Gunakan list() agar aman dan tidak memicu Exception jika data ganda/kosong
-                java.util.List<Admin> hasil = query.list();
+            try {
+                // Ambil bean AdminDao dari Spring Context
+                AdminDao adminDao = main.springContext.getBean(AdminDao.class);
+                Admin admin = adminDao.login(username, password);
 
                 java.awt.EventQueue.invokeLater(() -> {
-                    if (!hasil.isEmpty()) {
-                        Admin admin = hasil.get(0);
+                    if (admin != null) {
                         javax.swing.JOptionPane.showMessageDialog(
                             loginForm.this, 
                             "Selamat datang " + admin.getUsername() + " di sistem self-cashier ALAMAKNA!", 
@@ -221,7 +213,7 @@ public class loginForm extends javax.swing.JFrame {
                 java.awt.EventQueue.invokeLater(() -> {
                     javax.swing.JOptionPane.showMessageDialog(
                         loginForm.this, 
-                        "Koneksi Hibernate Database Gagal:\n" + e.getMessage(), 
+                        "Terjadi kesalahan Spring/Hibernate:\n" + e.getMessage(), 
                         "Error Database", 
                         javax.swing.JOptionPane.ERROR_MESSAGE
                     );

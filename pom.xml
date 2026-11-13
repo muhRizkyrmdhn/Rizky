@@ -11,7 +11,8 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.release>18</maven.compiler.release>
-        <exec.mainClass>com.mycompany.alamakna_cashier.Alamakna_cashier</exec.mainClass>
+        <!-- Sesuaikan ke class main.java -->
+        <exec.mainClass>com.mycompany.alamakna_cashier.main</exec.mainClass>
         <spring.version>6.1.5</spring.version>
     </properties>
 
@@ -37,7 +38,7 @@
             <version>${spring.version}</version>
         </dependency>
 
-        <!-- Hibernate ORM Core -->
+        <!-- Hibernate ORM Core (Sudah membawa jakarta.persistence-api) -->
         <dependency>
             <groupId>org.hibernate.orm</groupId>
             <artifactId>hibernate-core</artifactId>
@@ -56,12 +57,6 @@
             <groupId>net.sf.jasperreports</groupId>
             <artifactId>jasperreports</artifactId>
             <version>6.21.0</version>
-        </dependency>
-        
-        <dependency>
-            <groupId>javax.persistence</groupId>
-            <artifactId>javax.persistence-api</artifactId>
-            <version>2.2</version>
         </dependency>
     </dependencies>
 
