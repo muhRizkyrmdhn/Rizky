@@ -128,14 +128,26 @@ public class AdminProductForm extends javax.swing.JFrame {
         titleBox.add(lblTitle, BorderLayout.NORTH);
         titleBox.add(lblSubtitle, BorderLayout.SOUTH);
 
-        JButton btnKeKasir = createStyledButton("Buka Mode Self-Cashier →", new Color(93, 64, 55));
+        JPanel headerButtons = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
+        headerButtons.setOpaque(false);
+
+        JButton btnKembali = createStyledButton("← Menu Admin", new Color(109, 76, 65));
+        btnKembali.addActionListener(e -> {
+            new AdminDashboardForm().setVisible(true);
+            dispose();
+        });
+
+        JButton btnKeKasir = createStyledButton("Buka Mode Self-Cashier →", new Color(141, 110, 99));
         btnKeKasir.addActionListener(e -> {
             new MainFrame().setVisible(true);
             dispose();
         });
 
+        headerButtons.add(btnKembali);
+        headerButtons.add(btnKeKasir);
+
         headerPanel.add(titleBox, BorderLayout.WEST);
-        headerPanel.add(btnKeKasir, BorderLayout.EAST);
+        headerPanel.add(headerButtons, BorderLayout.EAST);
         add(headerPanel, BorderLayout.NORTH);
 
         // ==================== 2. CONTENT SPLIT (KIRI: FORM, KANAN: TABEL) ====================
@@ -286,11 +298,21 @@ public class AdminProductForm extends javax.swing.JFrame {
         lblTableTitle.setFont(new Font("Segoe UI", Font.BOLD, 16));
         lblTableTitle.setForeground(COLOR_PRIMARY);
 
+        // Wadah tombol di pojok kanan atas tabel
+        JPanel tableActionButtons = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 0));
+        tableActionButtons.setOpaque(false);
+
+        JButton btnCetak = createStyledButton("Cetak Laporan", COLOR_PRIMARY);
+        btnCetak.addActionListener(e -> cetakLaporanStok());
+
         JButton btnRefresh = createStyledButton("Refresh Data", COLOR_ACCENT);
         btnRefresh.addActionListener(e -> loadTableProducts());
 
+        tableActionButtons.add(btnCetak);
+        tableActionButtons.add(btnRefresh);
+
         tableTopBar.add(lblTableTitle, BorderLayout.WEST);
-        tableTopBar.add(btnRefresh, BorderLayout.EAST);
+        tableTopBar.add(tableActionButtons, BorderLayout.EAST);
 
         String[] columns = {"ID", "Nama Biji Kopi", "Kategori", "Varian Gilingan", "Berat (gr)", "Harga (Rp)", "Stok", "Status"};
         tableModel = new DefaultTableModel(columns, 0) {
@@ -515,7 +537,7 @@ public class AdminProductForm extends javax.swing.JFrame {
             return false;
         }
     }
-
+    
     private void resetForm() {
         selectedProductId = null;
         txtNamaProduk.setText("");
@@ -526,6 +548,27 @@ public class AdminProductForm extends javax.swing.JFrame {
         txtStok.setText("");
         chkAvailable.setSelected(true);
         tblProducts.clearSelection();
+    }
+    private void cetakLaporanStok() {
+        new Thread(() -> {
+            try {
+                javax.sql.DataSource dataSource = main.springContext.getBean(javax.sql.DataSource.class);
+                try (java.sql.Connection conn = dataSource.getConnection()) {
+                    java.io.InputStream reportStream = getClass().getResourceAsStream("/reports/laporan_stok_produk.jrxml");
+                    if (reportStream == null) {
+                        EventQueue.invokeLater(() -> JOptionPane.showMessageDialog(this, "File /reports/laporan_stok_produk.jrxml tidak ditemukan!"));
+                        return;
+                    }
+                    net.sf.jasperreports.engine.JasperReport jasperReport = net.sf.jasperreports.engine.JasperCompileManager.compileReport(reportStream);
+                    net.sf.jasperreports.engine.JasperPrint jasperPrint = net.sf.jasperreports.engine.JasperFillManager.fillReport(jasperReport, new java.util.HashMap<>(), conn);
+
+                    EventQueue.invokeLater(() -> net.sf.jasperreports.view.JasperViewer.viewReport(jasperPrint, false));
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                EventQueue.invokeLater(() -> JOptionPane.showMessageDialog(this, "Gagal mencetak laporan: " + e.getMessage()));
+            }
+        }).start();
     }
     /**
      * @param args the command line arguments
