@@ -197,7 +197,7 @@ public class loginForm extends javax.swing.JFrame {
                         );
 
                         loginForm.this.dispose();
-                        new MainFrame().setVisible(true);
+                        new AdminDashboardForm().setVisible(true);
                     } else {
                         javax.swing.JOptionPane.showMessageDialog(
                             loginForm.this, 

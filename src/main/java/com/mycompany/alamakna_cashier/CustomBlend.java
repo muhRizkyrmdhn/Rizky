@@ -24,7 +24,6 @@ public class CustomBlend extends Product {
         this.grindSize = grindSize;
     }
 
-    @Override
     public double hitungSubtotal(int jumlahGram) {
         double biayaRacik = 5000;
         return (getHargaPerGram() * jumlahGram) + biayaRacik;
@@ -36,4 +35,12 @@ public class CustomBlend extends Product {
     public void setRasioRobusta(int rasioRobusta) { this.rasioRobusta = rasioRobusta; }
     public String getGrindSize() { return grindSize; }
     public void setGrindSize(String grindSize) { this.grindSize = grindSize; }
+
+    String getNamaProduk() {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+
+    private int getHargaPerGram() {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
 }
